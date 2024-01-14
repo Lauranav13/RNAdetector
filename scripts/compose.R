@@ -166,10 +166,3 @@ if (opt$ciri) {
     write.table(merged.input, file = opt$toutput, quote = FALSE, sep = "\t", append = FALSE, row.names = FALSE, col.names = TRUE)
   }
 }
-
-
-
-
-
-
-

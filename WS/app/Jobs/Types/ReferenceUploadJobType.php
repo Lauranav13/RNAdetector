@@ -273,7 +273,9 @@ class ReferenceUploadJobType extends AbstractJob
         $file = $this->model->getParameter('fastaFile');
         $index = (array)$this->model->getParameter('index', []);
         $mapFile = $this->model->getParameter('map_file');
-        $absoluteSourceFilename = $this->model->getAbsoluteJobDirectory() . '/' . $file;
+        #Código modificado
+        #$absoluteSourceFilename = $this->model->getAbsoluteJobDirectory() . '/' . $file;
+        $absoluteSourceFilename = $file;
         $absoluteSourceFilename = $this->model->getAbsoluteJobDirectory() . '/' . self::checksForCompression(
                 $this->model,
                 $absoluteSourceFilename

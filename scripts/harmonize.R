@@ -7,7 +7,7 @@ suppressPackageStartupMessages({
   library(rtracklayer)
 })
 
-read.gtf <- function (input.gtf, level = NULL, filter.features=NULL, one.by.one = FALSE) {
+read.gtf <- function (input.gtf, level = gene, filter.features=NULL, one.by.one = FALSE) {
   a        <- read.table(input.gtf,  stringsAsFactors = FALSE, sep = "\t")
   if (!is.null(level)) {
     if (one.by.one) {
@@ -26,14 +26,25 @@ read.gtf <- function (input.gtf, level = NULL, filter.features=NULL, one.by.one 
     }
   }
   if (nrow(a) == 0) return (NULL)
-  features <- lapply(strsplit(a[,9],";\\s*", perl = TRUE), function (x) {
+
+#Codigo añadido
+  if (grepl('gene_id ".*"', a[,9])) {
+    a[,9] <- gsub( 'gene_id "', '', a[,9])
+    a[,9] <- gsub('"', '', a[,9])
+
+    features <- list(setNames(a[,9], "gene_id"))
+  } else {
+    features <- lapply(strsplit(a[,9],";\\s*", perl = TRUE), function (x) {
     tmp <- strsplit(x, "\\s+\"?", perl = TRUE)
     return (setNames(sapply(tmp, function (x) (ifelse(length(x) > 1, x[2], NA))), sapply(tmp, function (x) (x[1]))))
   })
+  #####
+  }
   all.features <- names(features[[1]])
   if (!is.null(filter.features)) {
     all.features <- intersect(all.features, filter.features)
   }
+
   columns <- setNames(lapply(all.features, function (f) (sapply(features, function (x) (unname(x[f]))))), all.features)
   a <- a[,-c(2,6,8,9)]
   colnames(a) <- c("chr", "level", "start", "end", "strand")
@@ -131,8 +142,7 @@ harmonize.featureCounts <- function (input.file, input.gtf, output.file, map.tab
   m <- map.ids(m, map.table)
   write.table(m, file = output.file, quote = FALSE, sep = "\t", append = FALSE, row.names = FALSE, col.names = TRUE)
 }
-
-harmonize.salmon <- function (input.file, input.annotation = NULL, output.file, output.transcripts, map.table) {
+	harmonize.salmon <- function (input.file, input.annotation = NULL, output.file, output.transcripts, map.table) {
   m <- read.table(input.file, stringsAsFactors = FALSE, sep = "\t")
   ids <- strsplit(m[-1,1], "|", fixed = TRUE)
   val <- function (x,i) (ifelse(length(x) >= i, x[i], NA))

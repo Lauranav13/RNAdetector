@@ -9,6 +9,9 @@
 #   -x map file
 #   -h HARMONIZED output file
 ##############################################################################
+#Codigo añadido
+ANNOTATION_FORMAT="GTF"
+####
 OTHER_ARGS=""
 while getopts ":a:b:t:o:h:x:A:" opt; do
   case $opt in
@@ -19,6 +22,7 @@ while getopts ":a:b:t:o:h:x:A:" opt; do
   h) HARMONIZED=$OPTARG ;;
   x) MAP_FILE=$OPTARG ;;
   A) OTHER_ARGS=$OPTARG ;;
+  F) ANNOTATION_FORMAT=$OPTARG ;;
   \?)
     echo "Invalid option: -$OPTARG"
     exit 1
@@ -71,7 +75,7 @@ fi
 
 #### Counting ####
 # shellcheck disable=SC2086
-if ! featureCounts -T $THREADS $OTHER_ARGS -a "$GTF_FILE" -o "$OUTPUT" "$INPUT_BAM"; then
+if ! featureCounts -T $THREADS $OTHER_ARGS -a "$GTF_FILE" -F "$ANNOTATION_FORMAT" -t "gene" -o "$OUTPUT" "$INPUT_BAM"; then
   echo "An error occurred during featureCounts execution!"
   exit 8
 fi
